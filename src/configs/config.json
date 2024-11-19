@@ -1,0 +1,28 @@
+{
+  "3306": {
+    "development": {
+      "username": "yoga",
+      "password": "YD070420yd@",
+      "database": "db_dnm",
+      "host": "localhost",
+      "port": "3306",
+      "dialect": "mysql"
+    },
+    "staging": {
+      "username": "yoga",
+      "password": "Pass@word1",
+      "database": "dnmmobile",
+      "host": "103.186.0.54",
+      "port": "3306",
+      "dialect": "mysql"
+    },
+    "production": {
+      "username": "yoga",
+      "password": "Pass@word1",
+      "database": "dnmmobile",
+      "host": "103.186.0.54",
+      "port": "3306",
+      "dialect": "mysql"
+    }
+  }
+}

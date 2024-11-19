@@ -1,0 +1,1515 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1-oas3", 
+    "title": "Api Rest Backend Service DNM Internal"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:2024/api/v1"
+    },
+    {
+      "url": "http://152.42.193.204:2024/api/v1"
+    }
+  ],
+  "tags": [
+		{
+			"name": "Auth",
+			"description": "API untuk Login, Ubah Kata Sandi, Profile"
+		},
+    {
+			"name": "Administrator",
+      "description": "API untuk Data Administrator"
+    },
+    {
+			"name": "DNM Menu",
+      "description": "API untuk Menu di DNM"
+    },
+		{
+			"name": "Settings",
+			"description": "API untuk data Settings"
+		}
+  ],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+	"components": {
+		"schemas": {},
+		"securitySchemes": {
+			"bearerAuth": {
+				"type": "http",
+				"scheme": "bearer",
+				"bearerFormat": "JWT"
+			},
+			"ApiKeyAuth": {
+				"type": "apiKey",
+				"in": "header",
+				"name": "x-inter-service-call"
+			}
+		}
+	},
+	"paths": {
+		"/auth/login": {
+			"post": {
+				"tags": ["Auth"],
+				"summary": "Login Administrator => No Header",
+				"parameters": [
+					{
+						"name": "origin",
+						"in": "header",
+						"required": true,
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "http://localhost:4001"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"username": {
+										"type": "string",
+										"example": "YD070420"
+									},
+									"password": {
+										"type": "string",
+										"example": "YD070420"
+									}
+								},
+								"required": ["username", "password"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					},
+					"500": {
+						"description": "Terjadi kesalahan pada sistem"
+					}
+				}
+			}
+		},
+		"/auth/profile": {
+			"put": {
+				"tags": ["Auth"],
+				"summary": "Untuk get Data Profile Administrator => Header JWT access_token",
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/auth/ubah-katasandi": {
+			"post": {
+				"tags": ["Auth"],
+				"summary": "Ubah Kata Sandi Administrator => Header JWT access_token",
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"passwordLama": {
+										"type": "string",
+										"example": "YD070420"
+									},
+									"passwordBaru": {
+										"type": "string",
+										"example": "12345"
+									},
+									"passwordConfBaru": {
+										"type": "string",
+										"example": "12345"
+									}
+								},
+								"required": ["passwordLama", "passwordBaru", "passwordConfBaru"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+
+		"/user/admin": {
+			"get": {
+				"tags": ["Administrator"],
+				"summary": "Untuk get Data Administrator => Header JWT access_token",
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "page",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "integer",
+							"example": "1"
+						}
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "integer",
+							"example": "20"
+						}
+					},
+					{
+						"name": "sort",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "namaRole-ASC"
+						},
+						"description": "sort data by nama, namaRole, statusAdmin (ASC atau DESC)"
+					},
+					{
+						"name": "keyword",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "admin"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			},
+			"post": {
+				"tags": ["Administrator"],
+				"summary": "Proses ADD, EDIT, DELETE, STATUSRECORD Administrator => Header JWT access_token",
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"jenis": {
+										"type": "string"
+									},
+									"idAdmin": {
+										"type": "string"
+									},
+									"consumerType": {
+										"type": "integer"
+									},
+									"nama": {
+										"type": "string"
+									},
+									"username": {
+										"type": "string"
+									},
+									"password": {
+										"type": "string"
+									},
+									"statusAdmin": {
+										"type": "string"
+									},
+									"kondisi": {
+										"type": "integer"
+									}
+								}
+							},
+							"examples": {
+								"ADD": {
+									"value": {
+										"jenis": "ADD",	
+										"idAdmin": "2oErF8VQZ8udsp995JMNI7Lmget",	
+										"consumerType": 2,	
+										"nama": "Administrator Pusat",	
+										"username": "adminpusat",	
+										"password": "adminpusat"
+									}
+								},
+								"EDIT": {
+									"value": {
+										"jenis": "EDIT",	
+										"idAdmin": "2oErF8VQZ8udsp995JMNI7Lmget",	
+										"consumerType": 2,	
+										"nama": "Administrator Pusat",	
+										"username": "adminpusat",	
+										"password": "adminpusat"
+									}
+								},
+								"DELETE": {
+									"value": {
+										"jenis": "DELETE",	
+										"idAdmin": "2MMTo9pbEEW6E7xXT6SfstYxV0C"
+									}
+								},
+								"STATUSRECORD": {
+									"value": {
+										"jenis": "STATUSRECORD",	
+										"idAdmin": "2MMTo9pbEEW6E7xXT6SfstYxV0C",	
+										"kondisi": 0
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/user/admin/{uid}": {
+			"get": {
+				"tags": ["Administrator"],
+				"summary": "Untuk get Data Administrator => Header JWT access_token",
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "uid",
+						"in": "path",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "2MMTo9pbEEW6E7xXT6SfstYxV0C"
+						},
+						"description": "isi nya uuid dari idAdmin"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+
+		"/user/data-order": {
+			"get": {
+				"tags": ["DNM Menu"],
+				"summary": "Untuk get Data Order => Header JWT access_token atau x-inter-service-call",
+				"security": [
+					{
+						"bearerAuth": []
+					},
+					{
+						"ApiKeyAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "page",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "integer",
+							"example": "1"
+						}
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "integer",
+							"example": "20"
+						}
+					},
+					{
+						"name": "inv",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "INV-241104-1UUIKMUINV-241104-9T2CON3"
+						},
+						"description": "example bisa multiple cari by inv tanpa menggunakan spasi"
+					},
+					{
+						"name": "status",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"enum": ["ALL","WAITING_FOR_PAYMENT","WAITING_FOR_COD_CONFIRMATION","WAITING_FOR_SELLER_CONFIRMATION","PROCESSING",
+								"IN_SHIPPING","ARRIVED_AT_DESTINATION","ARRIVED_AT_DESTINATION_PICKUP","DONE","CANCELED"
+							]
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/user/data-order-summary-byproduct": {
+			"put": {
+				"tags": ["DNM Menu"],
+				"summary": "Untuk get Data Order Summary by Product => Header JWT x-inter-service-call",
+				"security": [
+					{
+						"ApiKeyAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "startdate",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "2024-11-01"
+						}
+					},
+					{
+						"name": "enddate",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "2024-11-06"
+						}
+					},
+					{
+						"name": "payment",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"enum": ["ALL","PAID","UNPAID"]
+						}
+					},
+					{
+						"name": "shippingType",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "string",
+								"enum": ["DELIVERY_COD","DELIVERY_NON_COD","DELIVERY_NON_COD_SAMEDAY","PICKUP"]
+							}
+						}
+					},
+					{
+						"name": "statusfinal",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "string",
+								"enum": ["PROCESSING","IN_SHIPPING","ARRIVED_AT_DESTINATION","ARRIVED_AT_DESTINATION_PICKUP","DONE","REVIEWED"]
+							}
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"idProductSync": {
+										"type": "array",
+										"example": ["PPKG1027","PPKG1028","PPKG1029"]
+									}
+								},
+								"required": ["idProductSync"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/user/data-product-variant": {
+			"post": {
+				"tags": ["DNM Menu"],
+				"summary": "Untuk get Data Product Variant => Header JWT x-inter-service-call",
+				"security": [
+					{
+						"ApiKeyAuth": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"kondisi": {
+										"type": "string"
+									},
+									"textInput": {
+										"type": "string"
+									}
+								}
+							},
+							"examples": {
+								"Product Package Combination": {
+									"value": {
+										"kondisi": 1,	
+										"textInput": "PKG100745541,PKG100947431"
+									}
+								},
+								"Invoice": {
+									"value": {
+										"kondisi": 2,	
+										"textInput": "INV-241031-2QSPRNHINV-240828-TGFK0GIINV-240827-Q3TIRMW"
+									}
+								},
+								"Product Package": {
+									"value": {
+										"kondisi": 3,	
+										"textInput": "PPKG1045,PPKG1046"
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/user/data-leader-order-byproduct": {
+			"put": {
+				"tags": ["DNM Menu"],
+				"summary": "Untuk get Data Leader Order by Product => Header JWT x-inter-service-call",
+				"security": [
+					{
+						"ApiKeyAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "startdate",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "2024-11-01"
+						}
+					},
+					{
+						"name": "enddate",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "2024-11-06"
+						}
+					},
+					{
+						"name": "payment",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"enum": ["ALL","PAID","UNPAID"]
+						}
+					},
+					{
+						"name": "shippingType",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "string",
+								"enum": ["DELIVERY_COD","DELIVERY_NON_COD","DELIVERY_NON_COD_SAMEDAY","PICKUP"]
+							}
+						}
+					},
+					{
+						"name": "statusfinal",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "string",
+								"enum": ["PROCESSING","IN_SHIPPING","ARRIVED_AT_DESTINATION","ARRIVED_AT_DESTINATION_PICKUP","DONE","REVIEWED"]
+							}
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"idProductSync": {
+										"type": "array",
+										"example": ["PPKG1027","PPKG1028","PPKG1029"]
+									}
+								},
+								"required": ["idProductSync"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/user/data-detail-order/{idUser}": {
+			"put": {
+				"tags": ["DNM Menu"],
+				"summary": "Untuk get Data Leader Order by Product => Header JWT x-inter-service-call",
+				"security": [
+					{
+						"ApiKeyAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "idUser",
+						"in": "path",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "5264"
+						},
+						"descriptiom": "berisikan id user"
+					},
+					{
+						"name": "startdate",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "2024-11-01"
+						}
+					},
+					{
+						"name": "enddate",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "2024-11-06"
+						}
+					},
+					{
+						"name": "payment",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"enum": ["ALL","PAID","UNPAID"]
+						}
+					},
+					{
+						"name": "shippingType",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "string",
+								"enum": ["DELIVERY_COD","DELIVERY_NON_COD","DELIVERY_NON_COD_SAMEDAY","PICKUP"]
+							}
+						}
+					},
+					{
+						"name": "statusfinal",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"type": "string",
+								"enum": ["PROCESSING","IN_SHIPPING","ARRIVED_AT_DESTINATION","ARRIVED_AT_DESTINATION_PICKUP","DONE","REVIEWED"]
+							}
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"idProductSync": {
+										"type": "array",
+										"example": ["PPKG1027","PPKG1028","PPKG1029"]
+									}
+								},
+								"required": ["idProductSync"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/user/data-consumer": {
+			"get": {
+				"tags": ["DNM Menu"],
+				"summary": "Untuk get Data Consumer => Header JWT x-inter-service-call",
+				"security": [
+					{
+						"ApiKeyAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "isConsumer",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"enum": [1,0]
+						},
+						"description": "1: Member, 0: Non Member"
+					},
+					{
+						"name": "startdate",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "2024-11-01"
+						}
+					},
+					{
+						"name": "enddate",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "2024-11-08"
+						}
+					},
+					{
+						"name": "keyword",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "Temporary Code"
+						},
+						"description": "keyword: Nama, Kode Referal dan ID Member (jika isConsumer: 1)"
+					},
+					{
+						"name": "last",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "integer",
+							"example": "1"
+						}
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "integer",
+							"example": "20"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/user/data-regist-in-apps": {
+			"get": {
+				"tags": ["DNM Menu"],
+				"summary": "Untuk get Data Register Member In Apps => Header JWT x-inter-service-call",
+				"security": [
+					{
+						"ApiKeyAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "consumerType",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"enum": [1,0]
+						},
+						"description": "1: New Member, 0: Upgrade Member"
+					},
+					{
+						"name": "startdate",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "2024-11-01"
+						}
+					},
+					{
+						"name": "enddate",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "2024-11-08"
+						}
+					},
+					{
+						"name": "keyword",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "Temporary Code"
+						},
+						"description": "keyword: Nama dan ID Member"
+					},
+					{
+						"name": "last",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "integer",
+							"example": "1"
+						}
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "integer",
+							"example": "20"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/user/data-survei-dnm": {
+			"get": {
+				"tags": ["DNM Menu"],
+				"summary": "Untuk get Data Survei DNM => Header JWT x-inter-service-call",
+				"security": [
+					{
+						"ApiKeyAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "startdate",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "2024-11-01"
+						}
+					},
+					{
+						"name": "enddate",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "2024-11-08"
+						}
+					},
+					{
+						"name": "keyword",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "tes"
+						},
+						"description": "keyword: Nama dan No.Telp"
+					},
+					{
+						"name": "rating",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"enum": [1,2,3,4,5]
+						}
+					},
+					{
+						"name": "page",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "integer",
+							"example": "1"
+						}
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "integer",
+							"example": "20"
+						}
+					},
+					{
+						"name": "sort",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "createdAt-ASC"
+						},
+						"description": "name, rating, createdAt [ASC or DESC] => ex name-ASC,rating-ASC,createdAt-ASC"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/user/check-payment": {
+			"get": {
+				"tags": ["DNM Menu"],
+				"summary": "Untuk check Payment Order => Header JWT x-inter-service-call",
+				"security": [
+					{
+						"ApiKeyAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "inv",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "INV-241104-1UUIKMU"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/user/hit-update-status": {
+			"put": {
+				"tags": ["DNM Menu"],
+				"summary": "Untuk Hit Update Order => Header JWT x-inter-service-call",
+				"security": [
+					{
+						"ApiKeyAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "status",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"enum": ["WAITING_FOR_PAYMENT","WAITING_FOR_COD_CONFIRMATION","WAITING_FOR_SELLER_CONFIRMATION","PROCESSING",
+								"IN_SHIPPING","ARRIVED_AT_DESTINATION","ARRIVED_AT_DESTINATION_PICKUP","DONE","CANCELED","PAYMENT_ERROR","ORDER_RETURN"
+							]
+						}
+					},
+					{
+						"name": "remarks",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": ""
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"idOrder": {
+										"type": "array",
+										"example": ["2oQVPvew4Ht84vtHf1UgGmqSIOe"]
+									}
+								},
+								"required": ["idOrder"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/user/hit-order-manual": {
+			"get": {
+				"tags": ["DNM Menu"],
+				"summary": "Untuk Hit Order Manual => Header JWT x-inter-service-call",
+				"security": [
+					{
+						"ApiKeyAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "inv",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "INV-241104-1UUIKMU"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+
+		"/settings/getUID": {
+			"get": {
+				"tags": ["Settings"],
+				"summary": "Untuk get Data UID",
+				"parameters": [],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/settings/getRandomUID": {
+			"get": {
+				"tags": ["Settings"],
+				"summary": "Untuk get Data Random UID",
+				"parameters": [
+					{
+						"name": "jumlah",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "integer",
+							"example": "8"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/settings/encryptPass": {
+			"get": {
+				"tags": ["Settings"],
+				"summary": "Untuk Encrypt Data",
+				"security": [
+					{
+						"ApiKeyAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "kata",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "tes"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/settings/decryptPass": {
+			"get": {
+				"tags": ["Settings"],
+				"summary": "Untuk Decrypt Data",
+				"security": [
+					{
+						"ApiKeyAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "kata",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "Xi9SPAEtDGM="
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/settings/optionsMenu": {
+			"get": {
+				"tags": ["Settings"],
+				"summary": "Untuk Options Menu => Header JWT access_token",
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/settings/optionsOmpu": {
+			"get": {
+				"tags": ["Settings"],
+				"summary": "Untuk Options Ompu",
+				"security": [],
+				"parameters": [],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/settings/optionsJabatan": {
+			"get": {
+				"tags": ["Settings"],
+				"summary": "Untuk Options Jabatan",
+				"security": [],
+				"parameters": [],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/settings/optionsBidang": {
+			"get": {
+				"tags": ["Settings"],
+				"summary": "Untuk Options Bidang",
+				"security": [],
+				"parameters": [],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/settings/optionsKomisarisWilayah": {
+			"get": {
+				"tags": ["Settings"],
+				"summary": "Untuk Options Komisaris Wilayah",
+				"security": [],
+				"parameters": [
+					{
+						"name": "kodeWilayah",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"enum": ["","01","02","03","04","05","06","07","08","09","10","11","12"]
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/settings/optionsWilayahPanjaitan": {
+			"get": {
+				"tags": ["Settings"],
+				"summary": "Untuk Options Wilayah Panjaitan",
+				"security": [],
+				"parameters": [],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/settings/optionsWilayah2023": {
+			"get": {
+				"tags": ["Settings"],
+				"summary": "Untuk Options Wilayah Indonesia",
+				"security": [],
+				"parameters": [
+					{
+						"name": "bagian",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"enum": ["provinsi","kabkota","kecamatan","kelurahan","kabkotaOnly"]
+						}
+					},
+					{
+						"name": "KodeWilayah",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": ""
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/settings/cmssetting": {
+			"get": {
+				"tags": ["Settings"],
+				"summary": "Untuk get Data CMS Settings",
+				"security": [],
+				"parameters": [],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+
+		"/apirest/anggota": {
+			"get": {
+				"tags": ["Api Rest"],
+				"summary": "Untuk get Data Keanggotaan => Header x-inter-service-call",
+				"security": [
+					{
+						"ApiKeyAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "page",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "integer",
+							"example": "1"
+						}
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "integer",
+							"example": "20"
+						}
+					},
+					{
+						"name": "keyword",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "tes"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/apirest/list-wilayah-panjaitan": {
+			"get": {
+				"tags": ["Api Rest"],
+				"summary": "Untuk get Data Wilayah Panjaitan => Header x-inter-service-call",
+				"security": [
+					{
+						"ApiKeyAuth": []
+					}
+				],
+				"parameters": [],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/apirest/list-komisaris-wilayah/{kodeWilayah}": {
+			"get": {
+				"tags": ["Api Rest"],
+				"summary": "Untuk get Data Komisaris Wilayah => Header x-inter-service-call",
+				"security": [
+					{
+						"ApiKeyAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "kodeWilayah",
+						"in": "path",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "01"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		}
+	}
+}
