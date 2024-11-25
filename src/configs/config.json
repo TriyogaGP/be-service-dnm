@@ -11,7 +11,7 @@
     "staging": {
       "username": "yoga",
       "password": "Pass@word1",
-      "database": "dnmmobile",
+      "database": "db_dnm",
       "host": "103.186.0.54",
       "port": "3306",
       "dialect": "mysql"
@@ -19,7 +19,7 @@
     "production": {
       "username": "yoga",
       "password": "Pass@word1",
-      "database": "dnmmobile",
+      "database": "db_dnm",
       "host": "103.186.0.54",
       "port": "3306",
       "dialect": "mysql"
