@@ -1019,6 +1019,67 @@
 				}
 			}
 		},
+		"/user/data-warehouse-stokist": {
+			"get": {
+				"tags": ["DNM Menu"],
+				"summary": "Untuk get Data WH dan Stokist => Header JWT x-inter-service-call",
+				"security": [
+					{
+						"ApiKeyAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "type",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"enum": ["WAREHOUSE", "STOCKIST"]
+						}
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "200"
+						}
+					},
+					{
+						"name": "keyword",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "Mega"
+						}
+					},
+					{
+						"name": "status",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"enum": ["ACTIVE", "INACTIVE"]
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
 		"/user/check-payment": {
 			"get": {
 				"tags": ["DNM Menu"],
@@ -1113,6 +1174,37 @@
 			"get": {
 				"tags": ["DNM Menu"],
 				"summary": "Untuk Hit Order Manual => Header JWT x-inter-service-call",
+				"security": [
+					{
+						"ApiKeyAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "inv",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": "INV-241104-1UUIKMU"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Berhasil"
+					},
+					"404": {
+						"description": "Gagal atau Unauthorized"
+					}
+				}
+			}
+		},
+		"/user/hit-cod-confirmation": {
+			"get": {
+				"tags": ["DNM Menu"],
+				"summary": "Untuk Hit COD Confirmation => Header JWT x-inter-service-call",
 				"security": [
 					{
 						"ApiKeyAuth": []

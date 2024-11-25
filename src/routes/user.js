@@ -9,11 +9,16 @@ const {
   getLeaderOrderByProduct,
   getDetailOrderLeader,
   getConsumer,
-  getRegistInApps,
   getSurveiDNM,
+  getDataWHStk,
+  getRegistInApps,
+  checkMemberDetailKNET,
   checkPayment,
   hitUpdateStatus,
   hitOrderManual,
+  hitCODConfirm,
+  
+  apiDataWHSTK,
   testing,
 } = require('../controllers/user.controller')
 const { uploadFile } = require('../middleware/uploadFile')
@@ -26,7 +31,7 @@ module.exports = models => {
   route.route('/admin')
     .get(verifyToken, getAdmin(models))
     .post(verifyToken, postAdmin(models))
-    route.route('/admin/:uid')
+  route.route('/admin/:uid')
     .get(verifyToken, getAdminbyUid(models))
     
   route.route('/data-order')
@@ -47,11 +52,17 @@ module.exports = models => {
   route.route('/data-consumer')
     .get(verifyToken, getConsumer())
     
-  route.route('/data-regist-in-apps')
-    .get(verifyToken, getRegistInApps())
-    
   route.route('/data-survei-dnm')
     .get(verifyToken, getSurveiDNM())
+  
+  route.route('/data-warehouse-stokist')
+    .get(verifyToken, getDataWHStk())
+
+  route.route('/data-regist-in-apps')
+    .get(verifyToken, getRegistInApps())
+
+  route.route('/check-member-detail/:idMember')
+    .get(verifyToken, checkMemberDetailKNET())
 
   route.route('/check-payment')
     .get(verifyToken, checkPayment())
@@ -61,6 +72,14 @@ module.exports = models => {
        
   route.route('/hit-order-manual')
     .get(verifyToken, hitOrderManual())
+       
+  route.route('/hit-cod-confirmation')
+    .get(verifyToken, hitCODConfirm())
+
+
+  //API
+  route.route('/api-whstokist')
+    .get(verifyToken, apiDataWHSTK())
 
   route.route('/testing')
     .get(testing(models))

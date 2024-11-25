@@ -400,12 +400,51 @@ function getSurveiDNM () {
 	}
 }
 
+function getDataWHStk () {
+	return async (req, res, next) => {
+		let { type, limit = 200, keyword, status } = req.query
+		try {
+			const response = await orderSvc.getDataWHSTK({ type, limit, keyword, status })
+			return OK(res, response);
+		} catch (err) {
+			console.log(err);
+			
+			return NOT_FOUND(res, err.message)
+		}
+	}
+}
+
 function getRegistInApps () {
 	return async (req, res, next) => {
 		let { startDate, endDate, consumerType, keyword, last, limit } = req.query
 		try {
 			const response = await orderSvc.getDataRegisterInApps({ startDate, endDate, consumerType, keyword, last, limit })
 			return OK(res, response);
+		} catch (err) {
+			console.log(err);
+			
+			return NOT_FOUND(res, err.message)
+		}
+	}
+}
+
+function checkMemberDetailKNET () {
+	return async (req, res, next) => {
+		let { idMember } = req.params
+		try {
+				const login = await loginKnet()
+				const { data: response } = await request({
+					url: `${KNET_BASE_URL}v.1/getMember`,
+					method: 'POST',
+					data: {
+						dfno: idMember
+					},
+					headers: {
+						'Content-Type': 'application/json',
+						'Authorization': `Bearer ${login.token}`,
+					},
+				})
+			return OK(res, response.data);
 		} catch (err) {
 			console.log(err);
 			
@@ -468,6 +507,47 @@ function hitOrderManual () {
 	}
 }
 
+function hitCODConfirm () {
+	return async (req, res, next) => {
+		let { inv } = req.query
+		try {
+			let response = await orderSvc.hitCODConfirm(inv)
+			return OK(res, response);
+		} catch (err) {
+			console.log(err);
+			
+			return NOT_FOUND(res, err.message)
+		}
+	}
+}
+
+function apiDataWHSTK () {
+	return async (req, res, next) => {
+		try {
+			const build = item => {				
+				return item.records.map(val => {
+					return {
+						locationCode: val.locationCode,
+						fullname: val.fullname,
+						address: val.address,
+					}
+				})
+			}
+			const whRes = await orderSvc.getDataWHSTK({ type: 'WAREHOUSE', limit: 200, status: 'ACTIVE' })
+			const stkRes = await orderSvc.getDataWHSTK({ type: 'STOCKIST', limit: 200, status: 'ACTIVE' })
+			const all = build(whRes).reduce((newArray, item) => {
+				newArray.push(item);
+				return newArray;
+		 	}, build(stkRes));
+			return OK(res, _.unionBy(all, 'locationCode'));
+		} catch (err) {
+			console.log(err);
+			
+			return NOT_FOUND(res, err.message)
+		}
+	}
+}
+
 function testing (models) {
 	return async (req, res, next) => {
 		let { idProductPackage } = req.query
@@ -493,10 +573,15 @@ module.exports = {
   getLeaderOrderByProduct,
   getDetailOrderLeader,
   getConsumer,
-  getRegistInApps,
   getSurveiDNM,
+  getDataWHStk,
+  getRegistInApps,
+  checkMemberDetailKNET,
   checkPayment,
   hitUpdateStatus,
   hitOrderManual,
+  hitCODConfirm,
+
+  apiDataWHSTK,
   testing,
 }
