@@ -83,7 +83,7 @@ module.exports = models => {
     .get(verifyToken, apiDataWHSTK())
 
   route.route('/download-whstokist')
-    .get(verifyToken, downloadDataWHSTK())
+    .get(downloadDataWHSTK())
 
   route.route('/testing')
     .get(testing(models))

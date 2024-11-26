@@ -524,6 +524,7 @@ function hitCODConfirm () {
 
 function apiDataWHSTK () {
 	return async (req, res, next) => {
+		let { keyword } = req.query
 		try {
 			const build = item => {				
 				return item.records.map(val => {
@@ -534,8 +535,8 @@ function apiDataWHSTK () {
 					}
 				})
 			}
-			const whRes = await orderSvc.getDataWHSTK({ type: 'WAREHOUSE', limit: 200, status: 'ACTIVE' })
-			const stkRes = await orderSvc.getDataWHSTK({ type: 'STOCKIST', limit: 200, status: 'ACTIVE' })
+			const whRes = await orderSvc.getDataWHSTK({ type: 'WAREHOUSE', keyword, limit: 200, status: 'ACTIVE' })
+			const stkRes = await orderSvc.getDataWHSTK({ type: 'STOCKIST', keyword, limit: 200, status: 'ACTIVE' })
 			const all = build(whRes).reduce((newArray, item) => {
 				newArray.push(item);
 				return newArray;
@@ -551,12 +552,7 @@ function apiDataWHSTK () {
 
 function downloadDataWHSTK (models) {
 	return async (req, res, next) => {
-		// let { idProductPackage } = req.query
 		try {
-			// const additionalNumber = Array(5-idProductPackage.toString().length)
-      // .fill(0).reduce((a, b) => a + b, '');
-			// return OK(res, additionalNumber);
-
 			const build = item => {				
 				return item.records.map(val => {
 					return {
