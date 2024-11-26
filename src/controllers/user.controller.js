@@ -54,6 +54,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const excel = require("exceljs");
 const ejs = require("ejs");
+const pdf = require("html-pdf");
 const path = require("path");
 const fs = require('fs');
 const qs = require('qs')
@@ -548,6 +549,73 @@ function apiDataWHSTK () {
 	}
 }
 
+function downloadDataWHSTK (models) {
+	return async (req, res, next) => {
+		// let { idProductPackage } = req.query
+		try {
+			// const additionalNumber = Array(5-idProductPackage.toString().length)
+      // .fill(0).reduce((a, b) => a + b, '');
+			// return OK(res, additionalNumber);
+
+			const build = item => {				
+				return item.records.map(val => {
+					return {
+						locationCode: val.locationCode,
+						fullname: val.fullname,
+						address: val.address,
+					}
+				})
+			}
+			const whRes = await orderSvc.getDataWHSTK({ type: 'WAREHOUSE', limit: 200, status: 'ACTIVE' })
+			const stkRes = await orderSvc.getDataWHSTK({ type: 'STOCKIST', limit: 200, status: 'ACTIVE' })
+			const all = build(whRes).reduce((newArray, item) => {
+				newArray.push(item);
+				return newArray;
+		 	}, build(stkRes));
+
+
+			ejs.renderFile(path.join(__dirname, "../../src/views/viewWarehouseStockist.ejs"), { dataWarehouseStockist: _.unionBy(all, 'locationCode') }, (err, data) => {
+				if (err) {
+					console.log(err);
+				} else {
+					// console.log(data)
+					let options = {
+						format: "A4",
+						orientation: "portrait",
+						quality: "10000",
+						border: {
+							top: "1cm",
+							right: "1cm",
+							bottom: "1cm",
+							left: "1cm"
+						},
+						// header: {
+						// 	height: "12mm",
+						// },
+						// footer: {
+						// 	height: "15mm",
+						// },
+						httpHeaders: {
+							"Content-type": "application/pdf",
+						},
+						type: "pdf",
+					};
+					pdf.create(data, options).toStream(function(err, stream){
+						// const blob = new Blob([buffer], { type: 'application/pdf' });
+						// const file = window.URL.createObjectURL(blob);
+						// return window.open(file);
+						return stream.pipe(res);
+					});
+				}
+			});
+		} catch (err) {
+			console.log(err);
+			
+			return NOT_FOUND(res, err.message)
+		}
+	}
+}
+
 function testing (models) {
 	return async (req, res, next) => {
 		let { idProductPackage } = req.query
@@ -583,5 +651,6 @@ module.exports = {
   hitCODConfirm,
 
   apiDataWHSTK,
+  downloadDataWHSTK,
   testing,
 }

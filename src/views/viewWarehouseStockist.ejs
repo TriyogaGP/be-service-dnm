@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Data Warehouse & Stockist</title>
+	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+</head>
+<body>
+	<style>
+		.judul{
+			font-weight: bold; 
+			font-size: 14pt; 
+			text-align: center;
+		}
+		.container{
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+	<div class="container">
+		<div style="font-size: 25pt; text-align: center; text-decoration: underline; margin-bottom: 10px;">Data DC, MDC dan Branch</div>
+		<table border="2" width="100%" cellspacing="0" cellpadding="0">
+			<tr class="judul">
+				<td width="5%" style="padding: 10px;">No</td>
+				<td width="15%">Location Code</td>
+				<td width="40%">Nama Warehouse / Stockist</td>
+				<td width="50%">Alamat</td>
+			</tr>
+			<% for(var i=0; i < dataWarehouseStockist.length; i++) { %>
+				<tr style="height: 65px;">
+					<td style="text-align: center;"><%= i + 1 %></td>
+					<td style="text-align: center;"><%= dataWarehouseStockist[i].locationCode %></td>
+					<td style="padding-left: 10px;"><%= dataWarehouseStockist[i].fullname %></td>
+					<td style="padding: 0 10px;"><%= dataWarehouseStockist[i].address %></td>
+				</tr>
+			<% } %>
+	</div>
+</body>
+</html>

@@ -19,6 +19,7 @@ const {
   hitCODConfirm,
   
   apiDataWHSTK,
+  downloadDataWHSTK,
   testing,
 } = require('../controllers/user.controller')
 const { uploadFile } = require('../middleware/uploadFile')
@@ -80,6 +81,9 @@ module.exports = models => {
   //API
   route.route('/api-whstokist')
     .get(verifyToken, apiDataWHSTK())
+
+  route.route('/download-whstokist')
+    .get(verifyToken, downloadDataWHSTK())
 
   route.route('/testing')
     .get(testing(models))
