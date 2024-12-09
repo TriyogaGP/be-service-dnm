@@ -104,21 +104,75 @@ try {
   //   socket.emit('event', { message: 'Connected !!!!' });
   // });
 
-  // //cron job
-  //   const { cronTemporaryFile } = require('./utils/cron.utils')
-  //   //update Temporary File
-  //   let temporaryfile = cron.schedule('0 1 * * *', async () => {
-  //     console.log('cron update Temporary File', new Date());
-  //     let response = await cronTemporaryFile(models)
-  //     if(response == 'success') {
-  //       console.log('selesai ubah data');
-  //     }
-  //   }, {
-  //     scheduled: true,
-  //     timezone: "Asia/Jakarta"
-  //   });
+  //cron job -> npm node-cron
+    const { cronTransaksi, cronTransaksiDaily, cronUserActive, cronKeranjangOrder } = require('./utils/cron.utils')
+    //update cronTransaksi
+    let cronTrx = cron.schedule('0 1 * * *', async () => {
+      console.log('cron Transaksi All', new Date());
+      let response = await cronTransaksi(models)
+      if(response == 'success') {
+        console.log('cronTransaksi selesai');
+      }
+    }, {
+      scheduled: true,
+      timezone: "Asia/Jakarta"
+    });
 
-  //   temporaryfile.start();
+    //update cronTransaksiDaily
+    let cronTrxDaily = cron.schedule('0 2 * * *', async () => {
+      console.log('cron Transaksi Daily', new Date());
+      let response = await cronTransaksiDaily(models)
+      if(response == 'success') {
+        console.log('cronTransaksiDaily selesai');
+      }
+    }, {
+      scheduled: true,
+      timezone: "Asia/Jakarta"
+    });
+
+    //update cronUserActiveMember
+    let cronUsrActMember = cron.schedule('0 3 * * *', async () => {
+      console.log('cron Transaksi All', new Date());
+      let response = await cronUserActive(models, '1', '0')
+      if(response == 'success') {
+        console.log('cronUserActive Member selesai');
+      }
+    }, {
+      scheduled: true,
+      timezone: "Asia/Jakarta"
+    });
+
+    //update cronUserActiveNonMember
+    let cronUsrActNonMember = cron.schedule('0 4 * * *', async () => {
+      console.log('cron Transaksi All', new Date());
+      let response = await cronUserActive(models, '0', '0')
+      if(response == 'success') {
+        console.log('cronUserActive Non Member selesai');
+      }
+    }, {
+      scheduled: true,
+      timezone: "Asia/Jakarta"
+    });
+
+    //update cronKeranjangOrder
+    let cronKeranjangOrd = cron.schedule('0 5 * * *', async () => {
+      console.log('cron Kosongkan Keranjang Order', new Date());
+      let response = await cronKeranjangOrder('1')
+      if(response == 'success') {
+        console.log('cronKeranjangOrder selesai');
+      }
+    }, {
+      scheduled: true,
+      timezone: "Asia/Jakarta"
+    });
+
+    cronTrx.start();
+    cronTrxDaily.start();
+    cronUsrActMember.start();
+    cronUsrActNonMember.start();
+    cronKeranjangOrd.start();
+
+  // cron job -> npm bree
 
   const PORT = process.env.PORT;
   server.listen(PORT, () => {
