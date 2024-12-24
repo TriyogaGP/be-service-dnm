@@ -444,6 +444,16 @@
 						}
 					},
 					{
+						"name": "jenis",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "integer",
+							"enum": [0, 1]
+						}
+					},
+					{
 						"name": "payment",
 						"in": "query",
 						"style": "simple",
@@ -1040,13 +1050,24 @@
 						}
 					},
 					{
+						"name": "last",
+						"in": "query",
+						"style": "simple",
+						"explode": false,
+						"schema": {
+							"type": "string",
+							"example": ""
+						},
+						"description": "last Location Code"
+					},
+					{
 						"name": "limit",
 						"in": "query",
 						"style": "simple",
 						"explode": false,
 						"schema": {
 							"type": "string",
-							"example": "200"
+							"example": "10"
 						}
 					},
 					{

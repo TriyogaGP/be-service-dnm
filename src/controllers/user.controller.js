@@ -56,6 +56,7 @@ dotenv.config();
 const BASE_URL = process.env.BASE_URL
 const KNET_BASE_URL = process.env.KNET_BASE_URL
 const KNET_PAYMENT_BASE_URL = process.env.KNET_PAYMENT_BASE_URL
+const KNET_SHIPPING_BASE_URL = process.env.KNET_SHIPPING_BASE_URL
 
 const orderSvc = new orderServiceConnector();
 
@@ -84,6 +85,21 @@ async function loginPayment () {
 		data: {
 			email: "kmart_prod@k-link.co.id",
 			password: "asdqwe123"
+		},
+		headers: {
+			'Content-Type': 'application/json'
+		},
+	})
+	return login
+}
+
+async function loginShipping () {
+	const { data: login } = await request({
+		url: `${KNET_SHIPPING_BASE_URL}auth/token`,
+		method: 'POST',
+		data: {
+			email: "mars@tes.com",
+			password: "12345"
 		},
 		headers: {
 			'Content-Type': 'application/json'
@@ -334,14 +350,14 @@ function getDataDashboardUserActive (models) {
 
 function getDataDashboardProduct () {
   return async (req, res, next) => {
-		let { kategori, is_package, condition, condition_value, detail = 0, page = 1, limit = 20 } = req.query
+		let { kategori, is_package, condition, condition_value, detail = 0, page = 1, limit = 20, keyword } = req.query
 		let url = {};
 		try {
 			if(kategori == 'ALL') {
-				url = {data: kategori, isPackage: is_package}
+				url = {data: kategori, isPackage: is_package, keyword}
 			}
 			if(kategori == 'PART') {
-				url = {data: kategori, condition, conditionValue: condition_value}
+				url = {data: kategori, condition, conditionValue: condition_value, keyword}
 			}
 			let response = await orderSvc.getDataProduct(url)
 			if(detail == 1){
@@ -442,9 +458,8 @@ function getOrderSummaryByProduct () {
 			const response = await orderSvc.getDataOrderSummaryByProduct({ dateRange, payment, shippingType, statusfinal, jenis }, idProductSync)
 			return OK(res, response);
 		} catch (err) {
-			console.log(err);
-			
-			return NOT_FOUND(res, err.message)
+			if(err.response.data.data == 'errorSINGLE' || err.response.data.data == 'errorPACKAGE') return OK(res, err.response.data.data, err.response.data.message)
+			return NOT_FOUND(res, err.response.data.message)
 		}
 	}
 }
@@ -550,9 +565,9 @@ function getSurveiDNM () {
 
 function getDataWHStk () {
 	return async (req, res, next) => {
-		let { type, limit = 200, keyword, status } = req.query
+		let { type, limit = 200, keyword, status, last } = req.query
 		try {
-			const response = await orderSvc.getDataWHSTK({ type, limit, keyword, status })
+			const response = await orderSvc.getDataWHSTK({ type, last, limit, keyword, status })
 			return OK(res, response);
 		} catch (err) {
 			console.log(err);
@@ -839,37 +854,56 @@ function reloadDashboardTransaksiDaily (models) {
 
 function reloadDashboardUserActive (models) {
 	return async (req, res, next) => {
-		let { isMember, detail } = req.query
+		let { isMember, detail, bulan } = req.query
 		try {
-			let tahun = new Date().getFullYear()
-			let hasil = []
-			for(let i=1; i <= 12; i++) {
-				let jumlah_hari = new Date(tahun, i, 0).getDate()
-				let bulan = i >= 10 ? i : "0"+i
-				const getBody = {
-					dateFrom: dayjs(tahun+"-"+bulan+"-01").utc().format(),
-					dateTo: dayjs(tahun+"-"+bulan+"-"+jumlah_hari).utc().format()
-				}
+			// let tahun = new Date().getFullYear()
+			// let hasil = []
+			// for(let i=1; i <= 12; i++) {
+			// 	let jumlah_hari = new Date(tahun, i, 0).getDate()
+			// 	let bulan = i >= 10 ? i : "0"+i
+			// 	const getBody = {
+			// 		dateFrom: dayjs(tahun+"-"+bulan+"-01").utc().format(),
+			// 		dateTo: dayjs(tahun+"-"+bulan+"-"+jumlah_hari).utc().format()
+			// 	}
 
-				let response = await orderSvc.getDataUserActive({dateRange: `${getBody.dateFrom},${getBody.dateTo}`, isMember, detail})
-				if(response){
-					hasil.push({
-						bulan: bulanValues(tahun+"-"+i+"-01"),
-						data: response.records
-					})
-				}
+			// 	let response = await orderSvc.getDataUserActive({dateRange: `${getBody.dateFrom},${getBody.dateTo}`, isMember, detail})
+			// 	if(response){
+			// 		hasil.push({
+			// 			bulan: bulanValues(tahun+"-"+i+"-01"),
+			// 			data: response.records
+			// 		})
+			// 	}
+			// }
+
+			// hasil.map(async val => {
+			// 	let kirimdata = { 
+			// 		userType: isMember == 0 ? 'Customer' : 'Member',
+			// 		tahun,
+			// 		bulan: val.bulan,
+			// 		dataUser: JSON.stringify(val.data),
+			// 		}
+			// 	await models.UserActive.update(kirimdata, {where: { userType: isMember == 0 ? 'Customer' : 'Member', bulan: val.bulan }})
+			// })
+
+			const mappingbulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+			let bulanNum = _.indexOf(mappingbulan, bulan) + 1
+			bulanNum = bulanNum >= 10 ? bulanNum : "0"+bulanNum
+			let tahun = new Date().getFullYear()
+			let jumlah_hari = new Date(tahun, bulanNum, 0).getDate()
+			const getBody = {
+				dateFrom: dayjs(tahun+"-"+bulanNum+"-01").utc().format(),
+				dateTo: dayjs(tahun+"-"+bulanNum+"-"+jumlah_hari).utc().format()
 			}
 
-			hasil.map(async val => {
-				let kirimdata = { 
-					userType: isMember == 0 ? 'Customer' : 'Member',
-					tahun,
-					bulan: val.bulan,
-					dataUser: JSON.stringify(val.data),
-					}
-				await models.UserActive.update(kirimdata, {where: { userType: isMember == 0 ? 'Customer' : 'Member', bulan: val.bulan }})
-			})
-			return OK(res);
+			let response = await orderSvc.getDataUserActive({dateRange: `${getBody.dateFrom},${getBody.dateTo}`, isMember, detail})
+			let kirimdata = { 
+				userType: isMember == 0 ? 'Customer' : 'Member',
+				tahun,
+				bulan,
+				dataUser: JSON.stringify(response.records),
+				}
+			await models.UserActive.update(kirimdata, {where: { userType: isMember == 0 ? 'Customer' : 'Member', bulan }})
+			return OK(res, response.records);
 		} catch (err) {
 			console.log(err);
 			
@@ -928,6 +962,32 @@ function checkPayment () {
 	}
 }
 
+function checkShippingStatus () {
+	return async (req, res, next) => {
+		let { no_resi, ekspedisi } = req.query
+		try {
+			const login = await loginShipping()
+			const { data: response } = await request({
+				url: `${KNET_SHIPPING_BASE_URL}api/tracking/history`,
+				method: 'POST',
+				data: {
+					awb: no_resi,
+					ekspedisi,
+				},
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${login.token}`,
+				},
+			})
+			return OK(res, response);
+		} catch (err) {
+			console.log(err);
+			
+			return NOT_FOUND(res, err.message)
+		}
+	}
+}
+
 function hitUpdateStatus () {
 	return async (req, res, next) => {
 		let { status, remarks } = req.query
@@ -961,7 +1021,7 @@ function hitCODConfirm () {
 	return async (req, res, next) => {
 		let { inv } = req.query
 		try {
-			let response = await orderSvc.hitCODConfirm(inv)
+			let response = await orderSvc.hitCODConfirmation(inv)
 			return OK(res, response);
 		} catch (err) {
 			console.log(err);
@@ -1081,7 +1141,12 @@ function testing (models) {
 		try {
 			const additionalNumber = Array(5-idProductPackage.toString().length)
       .fill(0).reduce((a, b) => a + b, '');
-			return OK(res, additionalNumber);
+			const mappingbulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+			const bulan = mappingbulan[new Date().getMonth()]
+			let bulanNum = _.indexOf(mappingbulan, bulan) + 1
+			let tahun = new Date().getFullYear()
+			let jumlah_hari = new Date(tahun, bulanNum, 0).getDate()
+			return OK(res, { additionalNumber, bulan: bulanNum, jumlah_hari });
 		} catch (err) {
 			console.log(err);
 			
@@ -1116,6 +1181,7 @@ module.exports = {
   reloadDashboardUserActive,
   checkMemberDetailKNET,
   checkPayment,
+  checkShippingStatus,
   hitUpdateStatus,
   hitOrderManual,
   hitCODConfirm,

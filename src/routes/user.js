@@ -25,6 +25,7 @@ const {
   reloadDashboardUserActive,
   checkMemberDetailKNET,
   checkPayment,
+  checkShippingStatus,
   hitUpdateStatus,
   hitOrderManual,
   hitCODConfirm,
@@ -112,6 +113,9 @@ module.exports = models => {
 
   route.route('/check-payment')
     .get(verifyToken, checkPayment())
+
+  route.route('/check-shipping-status')
+    .get(verifyToken, checkShippingStatus())
        
   route.route('/hit-update-status')
     .put(verifyToken, hitUpdateStatus())
