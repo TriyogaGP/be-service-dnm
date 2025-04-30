@@ -110,17 +110,9 @@ async function cronTransaksi (models) {
 				return { key, trx }
 			})) 
 
-			let meta = {
-				dp: 0,
-				bv: 0,
-			}
 			let dataKumpulTransaksi = []
 				kumpul.map(async vall => {
 					dataKumpulTransaksi.push(...vall.trx)
-					await Promise.all(vall.trx.map(val => {
-						meta.dp += val.total.dp
-						meta.bv += val.total.bv
-					}))
 				})
 
 				const PATTERN = /INV-RS/
@@ -219,17 +211,9 @@ async function cronTransaksiDaily (models) {
 			return { key, trx }
 		})) 
 
-		let meta = {
-			dp: 0,
-			bv: 0,
-		}
 		let dataKumpulTransaksi = []
 		kumpul.map(async vall => {
 			dataKumpulTransaksi.push(...vall.trx)
-			await Promise.all(vall.trx.map(val => {
-				meta.dp += val.total.dp
-				meta.bv += val.total.bv
-			}))
 		})
 
 		const PATTERN = /INV-RS/
@@ -323,9 +307,21 @@ async function cronKeranjangOrder (view) {
 	return 'success';
 }
 
+async function cronUnhideProductPackage () {
+	let dataProduct = await orderSvc.getProductPackage()
+	let date = dayjs().utc().format()
+	await dataProduct.map(async val => {
+		if(date >= val.productStartDate){
+			await orderSvc.hitUhideProduct(val.idProduct)
+		}
+	})
+	return 'success';
+}
+
 module.exports = {
 	cronTransaksi,
 	cronTransaksiDaily,
 	cronUserActive,
 	cronKeranjangOrder,
+	cronUnhideProductPackage,
 }

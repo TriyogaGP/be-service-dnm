@@ -30,6 +30,7 @@ const {
   hitOrderManual,
   hitCODConfirm,
   hitKeranjangOrder,
+  hitUnhideProductPackage,
   
   apiDataWHSTK,
   downloadDataWHSTK,
@@ -128,6 +129,9 @@ module.exports = models => {
        
   route.route('/hit-keranjang-order')
     .get(verifyToken, hitKeranjangOrder())
+       
+  route.route('/hit-unhide-product-package')
+    .get(verifyToken, hitUnhideProductPackage())
 
 
   //API

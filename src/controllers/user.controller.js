@@ -15,6 +15,7 @@ const {
 	paginate,
 	buildMysqlResponseWithPagination,
 	buildOrderQuery,
+	convertDateTime2,
 } = require('@triyogagp/backend-common/utils/helper.utils');
 const {
 	_allOption,
@@ -490,14 +491,14 @@ function getProductVariant () {
 
 function getLeaderOrderByProduct () {
 	return async (req, res, next) => {
-		let { startdate, enddate, payment, shippingType, statusfinal } = req.query
+		let { page = 1, limit = 20, startdate, enddate, payment, shippingType, statusfinal } = req.query
 		let { idProductSync } = req.body
 		let dateRange;
 		try {
 			if(startdate && enddate){
 				dateRange = `${startdate},${enddate}`
 			}
-			const response = await orderSvc.getLeaderOrderByProduct({ dateRange, payment, shippingType, statusfinal }, idProductSync)
+			const response = await orderSvc.getLeaderOrderByProduct({ page, limit, dateRange, payment, shippingType, statusfinal }, idProductSync)
 			return OK(res, response);
 		} catch (err) {
 			console.log(err);
@@ -671,33 +672,33 @@ function reloadDashboardTransaksi (models) {
 						bv: 0,
 					}
 					let dataKumpulTransaksi = []
-						kumpul.map(async vall => {
-							dataKumpulTransaksi.push(...vall.trx)
-							await Promise.all(vall.trx.map(val => {
-								meta.dp += val.total.dp
-								meta.bv += val.total.bv
-							}))
-						})
-
-						const PATTERN = /INV-RS/
-						const mappingTransaksi = dataKumpulTransaksi.filter(str => !PATTERN.test(str.orderNumber))
-						
-						let jml = {
-							dp: 0,
-							bv: 0,
-						}
-
-						let dataTransaksi = []
-						await Promise.all(mappingTransaksi.map(async val => {
-							jml.dp += val.total.dp
-							jml.bv += val.total.bv
-							dataTransaksi.push(val)
+					kumpul.map(async vall => {
+						dataKumpulTransaksi.push(...vall.trx)
+						await Promise.all(vall.trx.map(val => {
+							meta.dp += val.total.dp
+							meta.bv += val.total.bv
 						}))
+					})
 
-						hasil.push({
-							bulan: bulanValues(tahun+"-"+i+"-01"),
-							dataJumlah: jml
-						})
+					const PATTERN = /INV-RS/
+					const mappingTransaksi = dataKumpulTransaksi.filter(str => !PATTERN.test(str.orderNumber))
+					
+					let jml = {
+						dp: 0,
+						bv: 0,
+					}
+
+					let dataTransaksi = []
+					await Promise.all(mappingTransaksi.map(async val => {
+						jml.dp += val.total.dp
+						jml.bv += val.total.bv
+						dataTransaksi.push(val)
+					}))
+
+					hasil.push({
+						bulan: bulanValues(tahun+"-"+i+"-01"),
+						dataJumlah: jml
+					})
 				}
 			}
 			hasil.map(async val => {
@@ -1045,6 +1046,26 @@ function hitKeranjangOrder () {
 	}
 }
 
+function hitUnhideProductPackage (models) {
+	return async (req, res, next) => {
+		try {
+			let dataProduct = await orderSvc.getProductPackage()
+			let date = dayjs().utc().format()
+			await dataProduct.map(async val => {
+				if(date >= val.productStartDate){
+					console.log(val.idProduct);
+					await orderSvc.hitUhideProduct(val.idProduct)
+				}
+			})
+			return OK(res, dataProduct);
+		} catch (err) {
+			console.log(err);
+			
+			return NOT_FOUND(res, err.message)
+		}
+	}
+}
+
 function apiDataWHSTK () {
 	return async (req, res, next) => {
 		let { keyword } = req.query
@@ -1137,16 +1158,26 @@ function downloadDataWHSTK (models) {
 
 function testing (models) {
 	return async (req, res, next) => {
-		let { idProductPackage } = req.query
+		// let { idProductPackage } = req.query
 		try {
-			const additionalNumber = Array(5-idProductPackage.toString().length)
-      .fill(0).reduce((a, b) => a + b, '');
-			const mappingbulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
-			const bulan = mappingbulan[new Date().getMonth()]
-			let bulanNum = _.indexOf(mappingbulan, bulan) + 1
-			let tahun = new Date().getFullYear()
-			let jumlah_hari = new Date(tahun, bulanNum, 0).getDate()
-			return OK(res, { additionalNumber, bulan: bulanNum, jumlah_hari });
+			// const additionalNumber = Array(5-idProductPackage.toString().length)
+      // .fill(0).reduce((a, b) => a + b, '');
+			// const mappingbulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+			// const bulan = mappingbulan[new Date().getMonth()]
+			// let bulanNum = _.indexOf(mappingbulan, bulan) + 1
+			// let tahun = new Date().getFullYear()
+			// let jumlah_hari = new Date(tahun, bulanNum, 0).getDate()
+			// return OK(res, { additionalNumber, bulan: bulanNum, jumlah_hari });
+			let dataProduct = await orderSvc.getProductPackage()
+			// let date = dayjs().utc().format()
+			// await dataProduct.map(async val => {
+			// 	if(date >= val.productStartDate){
+			// 		console.log(val.idProduct);
+			// 		await orderSvc.hitUhideProduct(val.idProduct)
+			// 	}
+			// 	console.log(val.idProduct, val.productStartDate, date);
+			// })
+			return OK(res, dataProduct);
 		} catch (err) {
 			console.log(err);
 			
@@ -1186,6 +1217,7 @@ module.exports = {
   hitOrderManual,
   hitCODConfirm,
   hitKeranjangOrder,
+	hitUnhideProductPackage,
 
   apiDataWHSTK,
   downloadDataWHSTK,

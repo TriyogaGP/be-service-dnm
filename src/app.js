@@ -4,6 +4,7 @@ const corsAllowed = require('../cors-allowed-origins.json')
 const auth = require('./routes/auth');
 const settings = require('./routes/settings');
 const user = require('./routes/user');
+const kmart = require('./routes/kmart');
 const { sequelizeInstance, Sequelize } = require('./configs/db.config');
 const { importModels } = require('@triyogagp/backend-common/models/dnm')
 const models = importModels(sequelizeInstance, Sequelize);
@@ -58,6 +59,7 @@ try {
   app.use('/api/v1/auth', auth(models));
   app.use('/api/v1/settings', settings(models));
   app.use('/api/v1/user', user(models));
+  app.use('/api/v1/kmart', kmart(models));
 
   app.use(swagger());
 
@@ -105,7 +107,13 @@ try {
   // });
 
   //cron job -> npm node-cron
-    const { cronTransaksi, cronTransaksiDaily, cronUserActive, cronKeranjangOrder } = require('./utils/cron.utils')
+    const {
+      cronTransaksi,
+      cronTransaksiDaily,
+      cronUserActive,
+      cronKeranjangOrder,
+      cronUnhideProductPackage,
+    } = require('./utils/cron.utils')
     //update cronTransaksi
     let cronTrx = cron.schedule('0 1 * * *', async () => {
       console.log('cron Transaksi All', new Date());
@@ -165,12 +173,25 @@ try {
       scheduled: true,
       timezone: "Asia/Jakarta"
     });
+    
+    //update cronUnhideProductPackage
+    let cronUnhideProduct = cron.schedule('*/10 * * * *', async () => {
+      console.log('cron Unhide Product', new Date());
+      let response = await cronUnhideProductPackage()
+      if(response == 'success') {
+        console.log('cronUnhideProductPackage selesai');
+      }
+    }, {
+      scheduled: true,
+      timezone: "Asia/Jakarta"
+    });
 
     cronTrx.start();
     cronTrxDaily.start();
     cronUsrActMember.start();
     cronUsrActNonMember.start();
     cronKeranjangOrd.start();
+    cronUnhideProduct.start();
 
   // cron job -> npm bree
 
