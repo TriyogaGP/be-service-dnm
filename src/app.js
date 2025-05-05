@@ -191,7 +191,7 @@ try {
     cronUsrActMember.start();
     cronUsrActNonMember.start();
     cronKeranjangOrd.start();
-    cronUnhideProduct.start();
+    // cronUnhideProduct.start();
 
   // cron job -> npm bree
 
